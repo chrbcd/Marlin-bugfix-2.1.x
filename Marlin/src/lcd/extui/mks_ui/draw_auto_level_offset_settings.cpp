@@ -74,7 +74,7 @@ void lv_draw_auto_level_offset_settings() {
   dtostrf(TERN0(HAS_PROBE_XY_OFFSET, probe.offset.y), 1, 1, public_buf_l);
   lv_screen_menu_item_1_edit(scr, machine_menu.Yoffset, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_OFFSET_Y, 1, public_buf_l);
 
-  dtostrf(TERN0(HAS_PROBE_XY_OFFSET, probe.offset.z), 1, 1, public_buf_l);
+  dtostrf(TERN0(HAS_PROBE_XY_OFFSET, probe.offset.z), 1, 3, public_buf_l);
   lv_screen_menu_item_1_edit(scr, machine_menu.Zoffset, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_OFFSET_Z, 2, public_buf_l);
 
   lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACK_POS_X, PARA_UI_BACK_POS_Y, event_handler, ID_OFFSET_RETURN, true);

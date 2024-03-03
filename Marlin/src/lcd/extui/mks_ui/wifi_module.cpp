@@ -136,7 +136,7 @@ void wifi_reset() {
 void mount_file_sys(const uint8_t disk_type) {
   switch (disk_type) {
     case FILE_SYS_SD: TERN_(HAS_MEDIA, card.mount()); break;
-    case FILE_SYS_USB: break;
+    case FILE_SYS_USB: TERN_(HAS_MEDIA, card.mount()); break;
   }
 }
 
@@ -718,9 +718,12 @@ void get_file_list(const char * const path, const bool with_longnames) {
   if (!path) return;
 
   if (gCfgItems.fileSysType == FILE_SYS_SD) {
+card.changeMedia(&card.media_driver_sdcard); //CB
     TERN_(HAS_MEDIA, card.mount());
   }
   else if (gCfgItems.fileSysType == FILE_SYS_USB) {
+card.changeMedia(&card.media_driver_usbFlash); //CB
+    TERN_(HAS_MEDIA, card.mount());
     // udisk
   }
   exploreDisk(path, 0, with_longnames);
@@ -823,10 +826,15 @@ uint8_t exploreDisk(const char * const path, const uint8_t recu_level, const boo
 
   if (!path) return 0;
 
-  const int16_t fileCnt = card.get_num_items();
+  //const int16_t fileCnt = card.get_num_items();
 
   MediaFile file;
-  MediaFile *diveDir;
+  if (strlen(path)>1 )
+   card.cd(path);
+  else
+   card.cdroot();
+  const int16_t fileCnt = card.get_num_items();
+  //MediaFile *diveDir;
   for (int16_t i = 0; i < fileCnt; i++) {
     card.selectFileByIndexSorted(i);
 
@@ -836,7 +844,7 @@ uint8_t exploreDisk(const char * const path, const uint8_t recu_level, const boo
     if (card.flag.filenameIsDir && recu_level <= 10)
       strcat_P(Fstream, PSTR(".DIR"));
 
-    strcat_P(Fstream, PSTR(" 0")); // report 0 file size
+    //strcat_P(Fstream, PSTR(" 0")); // report 0 file size
 
     if (with_longnames) {
       strcat_P(Fstream, PSTR(" "));
@@ -890,26 +898,31 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
           if (spStr == nullptr) {
             gCfgItems.fileSysType = FILE_SYS_SD;
             send_to_wifi((uint8_t *)(STR_BEGIN_FILE_LIST "\r\n"), strlen(STR_BEGIN_FILE_LIST "\r\n"));
-            get_file_list("0:/", false);
+            get_file_list("1:/", false);
             send_to_wifi((uint8_t *)(STR_END_FILE_LIST "\r\n"), strlen(STR_END_FILE_LIST "\r\n"));
             send_ok_to_wifi();
             break;
           }
 
-          while (mStr[index] == ' ') index++;
+          while (spStr[index] == ' ') index++;
 
           if (gCfgItems.wifi_type == ESP_WIFI) {
             char * const path = (char *)tempBuf;
-            if (strlen(&mStr[index]) < 80) {
+            if (strlen(&spStr[index]) < 80) {
               send_to_wifi((uint8_t *)(STR_BEGIN_FILE_LIST "\r\n"), strlen(STR_BEGIN_FILE_LIST "\r\n"));
 
-              if (strncmp(&mStr[index], "1:", 2) == 0)
+              if (strncmp(&spStr[index], "1:", 2) == 0)
                 gCfgItems.fileSysType = FILE_SYS_SD;
-              else if (strncmp(&mStr[index], "0:", 2) == 0)
+              else if (strncmp(&spStr[index], "0:", 2) == 0)
                 gCfgItems.fileSysType = FILE_SYS_USB;
 
-              strcpy(path, &mStr[index]);
-              const bool with_longnames = strchr(mStr, 'L') != nullptr;
+              //strcpy(path, &mStr[index]);
+              //const bool with_longnames = strchr(mStr, 'L') != nullptr;
+const bool with_longnames = strchr(spStr, 'L') != nullptr;
+              char * const crStr = strchr(&spStr[index], ' ');
+              if (crStr)  *crStr = '\0';
+              //}else
+              strcpy(path, &spStr[index+2]); //On saute le drive
               get_file_list(path, with_longnames);
               send_to_wifi((uint8_t *)(STR_END_FILE_LIST "\r\n"), strlen(STR_END_FILE_LIST "\r\n"));
             }
@@ -1532,6 +1545,7 @@ static void file_first_msg_handle(const uint8_t * const msg, const uint16_t msgL
     TERN_(HAS_MEDIA, card.mount());
   }
   else if (gCfgItems.fileSysType == FILE_SYS_USB) {
+TERN_(HAS_MEDIA, card.mount());
     // nothing
   }
   file_writer.write_index = 0;

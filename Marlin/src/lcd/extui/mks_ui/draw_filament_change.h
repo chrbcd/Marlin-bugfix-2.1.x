@@ -29,6 +29,9 @@ void lv_draw_filament_change();
 void lv_clear_filament_change();
 void disp_filament_type();
 void disp_filament_temp();
+//CB
+void disp_filament_length_load();
+void disp_filament_length_unload();
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */

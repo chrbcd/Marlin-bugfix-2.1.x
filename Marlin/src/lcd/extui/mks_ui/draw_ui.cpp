@@ -64,6 +64,9 @@ DISP_STATE last_disp_state;
 PRINT_TIME print_time;
 num_key_value_state value;
 keyboard_value_state keyboard_value;
+//CB
+int chr_filament_change_load_length;
+int chr_filament_change_unload_length;
 
 uint32_t To_pre_view;
 bool gcode_preview_over, flash_preview_begin, default_preview_flg;
@@ -202,6 +205,10 @@ void ui_cfg_init() {
   uiCfg.filament_loading_time_cnt    = 0;
   uiCfg.filament_unloading_time_flg  = false;
   uiCfg.filament_unloading_time_cnt  = 0;
+
+  //CB
+  chr_filament_change_load_length = gCfgItems.filamentchange_load_length;
+  chr_filament_change_unload_length = gCfgItems.filamentchange_unload_length;
 
   #if ENABLED(MKS_WIFI_MODULE)
     memset(&wifiPara, 0, sizeof(wifiPara));

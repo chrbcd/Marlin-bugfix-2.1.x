@@ -478,9 +478,9 @@ void filament_dialog_handle() {
     uiCfg.filament_loading_time_flg = true;
     uiCfg.filament_loading_time_cnt = 0;
     #if HAS_TOOLCHANGE
-      sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E%d F%d\nG90"), uiCfg.extruderIndex, gCfgItems.filamentchange_load_length, gCfgItems.filamentchange_load_speed);
+      sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E%d F%d\nG90"), uiCfg.extruderIndex, chr_filament_change_load_length, gCfgItems.filamentchange_load_speed);
     #else
-      sprintf_P(public_buf_m, PSTR("G91\nG1 E%d F%d\nG90"), gCfgItems.filamentchange_load_length, gCfgItems.filamentchange_load_speed);
+      sprintf_P(public_buf_m, PSTR("G91\nG1 E%d F%d\nG90"), chr_filament_change_load_length, gCfgItems.filamentchange_load_speed);
     #endif
     queue.inject(public_buf_m);
   }
@@ -492,9 +492,9 @@ void filament_dialog_handle() {
     uiCfg.filament_unloading_time_flg = true;
     uiCfg.filament_unloading_time_cnt = 0;
     #if HAS_TOOLCHANGE
-      sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E-%d F%d\nG90"), uiCfg.extruderIndex, gCfgItems.filamentchange_unload_length, gCfgItems.filamentchange_unload_speed);
+      sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E-%d F%d\nG90"), uiCfg.extruderIndex, chr_filament_change_unload_length, gCfgItems.filamentchange_unload_speed);
     #else
-      sprintf_P(public_buf_m, PSTR("G91\nG1 E-%d F%d\nG90"), gCfgItems.filamentchange_unload_length, gCfgItems.filamentchange_unload_speed);
+      sprintf_P(public_buf_m, PSTR("G91\nG1 E-%d F%d\nG90"), chr_filament_change_unload_length, gCfgItems.filamentchange_unload_speed);
     #endif
     queue.inject(public_buf_m);
   }

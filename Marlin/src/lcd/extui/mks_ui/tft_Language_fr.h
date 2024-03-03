@@ -25,7 +25,7 @@
 #define TOOL_TEXT_FR                  "Prêt"
 #define PREHEAT_TEXT_FR               "Préchauffe"
 #define MOVE_TEXT_FR                  "Déplace"
-#define HOME_TEXT_FR                  "Acceuil"
+#define HOME_TEXT_FR                  "Accueil"
 #define PRINT_TEXT_FR                 "Impression"
 #define EXTRUDE_TEXT_FR               "Extruder"
 #define LEVELING_TEXT_FR              "Leveling"

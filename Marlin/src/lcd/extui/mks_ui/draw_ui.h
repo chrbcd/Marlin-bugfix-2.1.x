@@ -427,6 +427,10 @@ typedef enum {
 } keyboard_value_state;
 extern keyboard_value_state keyboard_value;
 
+//CB
+extern int chr_filament_change_load_length;
+extern int chr_filament_change_unload_length;
+
 extern CFG_ITMES gCfgItems;
 extern UI_CFG uiCfg;
 extern DISP_STATE disp_state;

@@ -38,12 +38,21 @@ static lv_obj_t *scr;
 static lv_obj_t *buttonType;
 static lv_obj_t *labelType;
 static lv_obj_t *tempText1;
+//CB
+static int chr_fil_load = 0;
+static int chr_fil_unload = 0;
+static lv_obj_t *buttonFilamenLengthLoad;
+static lv_obj_t *labelFilamenLengthLoad;
+static lv_obj_t *buttonFilamenLengthUnload;
+static lv_obj_t *labelFilamenLengthUnload;
 
 enum {
   ID_FILAMNT_IN = 1,
   ID_FILAMNT_OUT,
   ID_FILAMNT_TYPE,
-  ID_FILAMNT_RETURN
+  ID_FILAMNT_RETURN,
+  ID_FILAMNT_LENGTH_LOAD,
+  ID_FILAMNT_LENGTH_UNLOAD
 };
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
@@ -103,6 +112,23 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
       goto_previous_ui();
       break;
+case ID_FILAMNT_LENGTH_LOAD:
+        switch (chr_fil_load){
+            case 0: chr_filament_change_load_length = 100; chr_fil_load = 1; break;
+            case 1: chr_filament_change_load_length = 400; chr_fil_load = 2; break;
+            case 2: chr_filament_change_load_length = gCfgItems.filamentchange_load_length; chr_fil_load = 0; break;
+        }
+      disp_filament_length_load();
+      break;
+    case ID_FILAMNT_LENGTH_UNLOAD:
+        switch (chr_fil_unload){
+            case 0: chr_filament_change_unload_length = 100; chr_fil_unload = 1; break;
+            case 1: chr_filament_change_unload_length = 400; chr_fil_unload = 2; break;
+            case 2: chr_filament_change_unload_length = gCfgItems.filamentchange_unload_length; chr_fil_unload = 0; break;
+        }
+      disp_filament_length_unload();
+      break;
+
   }
 }
 
@@ -125,12 +151,70 @@ void lv_draw_filament_change() {
   labelType = lv_label_create_empty(buttonType);
 
   disp_filament_type();
+//CB
+  buttonFilamenLengthLoad = lv_imgbtn_create (scr, "F:/bmp_step5_mm.bin",INTERVAL_V + BTN_X_PIXEL , BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_FILAMNT_LENGTH_LOAD);
+  labelFilamenLengthLoad = lv_label_create_empty(buttonFilamenLengthLoad);
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable)
+      lv_group_add_obj(g, buttonFilamenLengthLoad);
+  #endif
+  disp_filament_length_load();
+  buttonFilamenLengthUnload = lv_imgbtn_create (scr, "F:/bmp_step5_mm.bin",INTERVAL_V + BTN_X_PIXEL * 2 , BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_FILAMNT_LENGTH_UNLOAD);
+  labelFilamenLengthUnload = lv_label_create_empty(buttonFilamenLengthUnload);
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable)
+      lv_group_add_obj(g, buttonFilamenLengthUnload);
+  #endif
+  disp_filament_length_unload();
+
 
   tempText1 = lv_label_create_empty(scr);
   lv_obj_set_style(tempText1, &tft_style_label_rel);
   disp_filament_temp();
+//CB 090124 pour eviter bug remplacement imge de in par l'image extruder apres chargement de filament
+  lv_imgbtn_set_src_both(buttonIn, "F:/bmp_in.bin");
 }
 
+void disp_filament_length_load(){
+  char buf1[15] = {0};
+  switch (chr_fil_load){
+    case 0: //lv_imgbtn_set_src_both(buttonFilamenLengthLoad, "F:/bmp_step5_mm.bin");
+            sprintf(buf1,"Ins %d mm", chr_filament_change_load_length);//gCfgItems.filamentchange_load_length);
+            lv_label_set_text(labelFilamenLengthLoad, buf1);
+            lv_obj_align(labelFilamenLengthLoad, buttonFilamenLengthLoad, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+            break;
+    case 1: //lv_imgbtn_set_src_both(buttonFilamenLengthLoad, "F:/bmp_step1_mm.bin");
+            sprintf(buf1,"Ins %d mm", chr_filament_change_load_length); //100
+            lv_label_set_text(labelFilamenLengthLoad, buf1);
+            lv_obj_align(labelFilamenLengthLoad, buttonFilamenLengthLoad, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+            break;
+    case 2: //lv_imgbtn_set_src_both(buttonFilamenLengthLoad, "F:/bmp_step10_mm.bin");
+            sprintf(buf1,"Ins %d mm", chr_filament_change_load_length);//400
+            lv_label_set_text(labelFilamenLengthLoad, buf1);
+            lv_obj_align(labelFilamenLengthLoad, buttonFilamenLengthLoad, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+            break;
+  }
+}
+void disp_filament_length_unload(){
+  char buf1[15] = {0};
+  switch (chr_fil_unload){
+    case 0: //lv_imgbtn_set_src_both(buttonFilamenLengthUnload, "F:/bmp_step5_mm.bin");
+            sprintf(buf1,"Ejec %d mm", chr_filament_change_unload_length);//gCfgItems.filamentchange_load_length);
+            lv_label_set_text(labelFilamenLengthUnload, buf1);
+            lv_obj_align(labelFilamenLengthUnload, buttonFilamenLengthUnload, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+            break;
+    case 1: //lv_imgbtn_set_src_both(buttonFilamenLengthUnload, "F:/bmp_step1_mm.bin");
+            sprintf(buf1,"Ejec %d mm", chr_filament_change_unload_length); //100
+            lv_label_set_text(labelFilamenLengthUnload, buf1);
+            lv_obj_align(labelFilamenLengthUnload, buttonFilamenLengthUnload, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+            break;
+    case 2: //lv_imgbtn_set_src_both(buttonFilamenLengthUnload, "F:/bmp_step10_mm.bin");
+            sprintf(buf1,"Ejec %d mm", chr_filament_change_unload_length);//400
+            lv_label_set_text(labelFilamenLengthUnload, buf1);
+            lv_obj_align(labelFilamenLengthUnload, buttonFilamenLengthUnload, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+            break;
+  }
+}
 void disp_filament_type() {
   if (uiCfg.extruderIndex == 1) {
     lv_imgbtn_set_src_both(buttonType, "F:/bmp_extru2.bin");
